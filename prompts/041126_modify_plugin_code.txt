@@ -1,0 +1,5 @@
+code_gs: "C:\Users\Cloverly\claude_code\email_drafter_gmail_plugin_v2\MAG Gmail Assistant - code gs file.txt"
+OPENAI_API_KEY: "C:\Users\Cloverly\claude_code\email_drafter_gmail_plugin_v2\OPENAI_API_KEY.txt"
+
+## main_task
+- modify the code_gs so that it drafts better emails that mimic james castrission. each draft writing execution should refer to james_email_samples from DB.

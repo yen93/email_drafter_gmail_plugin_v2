@@ -17,6 +17,8 @@ secrets/
 *creds*.txt
 *token*.txt
 *secret*
+OPENAI_API_KEY.txt
+*API_KEY*.txt
 
 # OS / editor cruft
 .DS_Store

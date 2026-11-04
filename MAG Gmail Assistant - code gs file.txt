@@ -1,0 +1,268 @@
+/**
+ * MAG Gmail Assistant — AI email drafter that mimics James Castrission's voice.
+ *
+ * Draft source of truth for James's style = the `james_email_samples` Supabase
+ * table (SENT/DRAFT snippets). Every draft generation pulls fresh samples from
+ * the DB, so the mimicry improves automatically as the n8n cache grows.
+ *
+ * SETUP (one-time, in the Apps Script editor):
+ *   Project Settings → Script properties → add:
+ *     OPENAI_API_KEY = <your OpenAI key>   (sk-proj-... — never hardcode it here)
+ *   The Supabase URL + publishable key below are safe to keep in code: the
+ *   publishable key is read-only and scoped to a SELECT policy on this one table.
+ */
+
+// ---- Config (safe to commit) ---------------------------------------------
+// Supabase publishable (anon) key — read-only via the anon SELECT policy on
+// public.james_email_samples. NOT the service_role key.
+var SUPABASE_URL = "https://aivitcomiywiysrfwqxt.supabase.co";
+var SUPABASE_ANON_KEY = "sb_publishable_LF_bXGV9UzxkapJIKVEczw_4o0cN4Ch";
+
+var OPENAI_MODEL = "gpt-4o";       // drafting model
+var SAMPLE_FETCH_LIMIT = 40;       // rows pulled from DB per draft
+var SAMPLE_USE_LIMIT = 24;         // exemplars actually fed to the model
+
+/**
+ * Compose Trigger: Builds the UI when opened from inside the compose/reply box.
+ */
+function onGmailComposeOpen(e) {
+  var section = CardService.newCardSection().setHeader("AI Generation Instructions");
+
+  var textInput = CardService.newTextInput()
+      .setFieldName("ai_instructions")
+      .setTitle("What should this email say?")
+      .setHint("e.g., Politely decline the invitation but ask to reschedule next month.")
+      .setMultiline(true);
+
+  var generateAction = CardService.newAction()
+      .setFunctionName("handleAiDraftGeneration");
+
+  var generateButton = CardService.newTextButton()
+      .setText("✨ Generate & Insert Draft")
+      .setOnClickAction(generateAction);
+
+  section.addWidget(textInput);
+  section.addWidget(generateButton);
+
+  return CardService.newCardBuilder()
+      .setHeader(CardService.newCardHeader().setTitle("MAG Assistant"))
+      .addSection(section)
+      .build();
+}
+
+/**
+ * Handles the click: aggregates data sources, calls the LLM, inserts the draft.
+ */
+function handleAiDraftGeneration(e) {
+  try {
+    // 1. User instructions
+    var userInstructions = e.formInput.ai_instructions;
+    if (!userInstructions) {
+      throw new Error("Please provide instructions before generating an email response.");
+    }
+
+    // 2. Thread context (best-effort)
+    var toEmail = e.gmail.toRecipients && e.gmail.toRecipients.length ? e.gmail.toRecipients[0] : "";
+    var subject = e.gmail.subject || "";
+    var cleanSubject = subject.replace(/^Re:\s*/i, "");
+
+    var threadContext = "No prior thread text history found.";
+    if (toEmail) {
+      var query = `(to:${toEmail} OR from:${toEmail}) subject:"${cleanSubject}" -in:drafts`;
+      var threads = GmailApp.search(query, 0, 1);
+      if (threads.length > 0) {
+        var messages = threads[0].getMessages();
+        var slicedMessages = messages.slice(-4); // last 4 msgs for context
+        threadContext = slicedMessages
+            .map(m => `From: ${m.getFrom()}\nBody: ${m.getPlainBody()}`)
+            .join("\n\n---\n\n");
+      }
+    }
+
+    // 3. Style samples — pulled LIVE from the james_email_samples DB
+    var styleSamples = getStyleSamplesFromDB();
+
+    // 4. Call the AI model
+    var aiGeneratedResponse = callOpenAI(userInstructions, threadContext, styleSamples);
+
+    // 5. Insert into the active compose/reply window
+    var formattedHtml = aiGeneratedResponse.replace(/\n/g, '<br>');
+    return CardService.newUpdateDraftActionResponseBuilder()
+        .setUpdateDraftBodyAction(
+            CardService.newUpdateDraftBodyAction()
+                .addUpdateContent(formattedHtml, CardService.ContentType.MUTABLE_HTML)
+                .setUpdateType(CardService.UpdateDraftBodyType.IN_PLACE_INSERT)
+        )
+        .build();
+
+  } catch (err) {
+    var errorHtml = `<div style="color:red; font-family:sans-serif; padding:10px; border:1px solid red;">❌ Error: ${err.message}</div>`;
+    return CardService.newUpdateDraftActionResponseBuilder()
+        .setUpdateDraftBodyAction(
+            CardService.newUpdateDraftBodyAction()
+                .addUpdateContent(errorHtml, CardService.ContentType.MUTABLE_HTML)
+                .setUpdateType(CardService.UpdateDraftBodyType.IN_PLACE_INSERT)
+        )
+        .build();
+  }
+}
+
+/**
+ * Fetches James's recent email snippets from Supabase (PostgREST) and formats
+ * them as style exemplars. SENT messages (actually sent by James) are preferred
+ * over DRAFTs. Returns a string ready to drop into the prompt.
+ */
+function getStyleSamplesFromDB() {
+  var url = SUPABASE_URL
+      + "/rest/v1/james_email_samples"
+      + "?select=Subject,snippet,labels,received_at"
+      + "&order=received_at.desc.nullslast"
+      + "&limit=" + SAMPLE_FETCH_LIMIT;
+
+  var options = {
+    "method": "get",
+    "headers": {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": "Bearer " + SUPABASE_ANON_KEY
+    },
+    "muteHttpExceptions": true
+  };
+
+  var response = UrlFetchApp.fetch(url, options);
+  var code = response.getResponseCode();
+  if (code !== 200) {
+    Logger.log("Supabase sample fetch failed (" + code + "): " + response.getContentText());
+    // Non-fatal: let the model proceed on its own if samples are unavailable.
+    return "No style samples could be loaded from the database. Write in a warm, concise, professional Australian business tone.";
+  }
+
+  var rows = JSON.parse(response.getContentText());
+  if (!rows || !rows.length) {
+    return "No style samples found in the database. Write in a warm, concise, professional Australian business tone.";
+  }
+
+  // Prefer SENT, then DRAFT; both are authored by James.
+  var sent = [];
+  var other = [];
+  rows.forEach(function (r) {
+    var isSent = (r.labels || []).some(function (l) { return l && l.id === "SENT"; });
+    (isSent ? sent : other).push(r);
+  });
+  var ordered = sent.concat(other).slice(0, SAMPLE_USE_LIMIT);
+
+  var exemplars = ordered.map(function (r, i) {
+    var body = cleanSnippet(r.snippet || "");
+    if (!body) return "";
+    var subj = (r.Subject || "(no subject)").trim();
+    return "Example " + (i + 1) + ' — Subject: "' + subj + '"\n' + body;
+  }).filter(function (s) { return s; });
+
+  return exemplars.join("\n\n");
+}
+
+/**
+ * Strips the recurring signature boilerplate from a snippet so the exemplar
+ * shows James's actual prose, not his contact block.
+ */
+function cleanSnippet(snippet) {
+  var s = snippet.replace(/\s+/g, " ").trim();
+  // Cut the signature block if present (keeps the "Cheers James" sign-off).
+  s = s.replace(/James Castrission\s+International Keynote Speaker[\s\S]*$/i, "").trim();
+  return s;
+}
+
+/**
+ * Sends the drafting request to OpenAI (Chat Completions) via UrlFetchApp.
+ */
+function callOpenAI(instructions, threadContext, styleSamples) {
+  var apiKey = PropertiesService.getScriptProperties().getProperty("OPENAI_API_KEY");
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY is missing. Add it under Project Settings → Script properties.");
+  }
+
+  var systemPrompt =
+      "You are James Castrission's executive email assistant. You write reply drafts that are "
+      + "indistinguishable from how James himself writes.\n\n"
+      + "Study the REAL email excerpts below (written by James) and mirror his voice precisely: "
+      + "his greeting style (e.g. \"Hi <first name>,\"), his warm-but-concise tone, sentence rhythm, "
+      + "vocabulary and phrasing (e.g. \"Hope you are well\", \"really appreciate it\", \"Look forward to...\"), "
+      + "level of formality, and how he structures a short reply.\n\n"
+      + "[JAMES'S REAL EMAIL SAMPLES — START]\n"
+      + styleSamples
+      + "\n[JAMES'S REAL EMAIL SAMPLES — END]\n\n"
+      + "Rules:\n"
+      + "- Match James's tone and phrasing from the samples above; do not invent a different style.\n"
+      + "- Keep it concise and natural. Do not pad or over-formalise.\n"
+      + "- Do not invent facts, commitments, dates, or figures that aren't given in the instructions or thread.\n"
+      + "- Output ONLY the final email body, ready to send. No preamble like 'Here is your draft:'.\n"
+      + "- End the email exactly with this snippet: \n\nCheers\nJames";
+
+  var userPrompt =
+      "Here is the email thread you are replying to:\n"
+      + "[THREAD HISTORY — START]\n"
+      + threadContext
+      + "\n[THREAD HISTORY — END]\n\n"
+      + "Write James's reply following these instructions:\n\""
+      + instructions + "\"";
+
+  var payload = {
+    "model": OPENAI_MODEL,
+    "messages": [
+      { "role": "system", "content": systemPrompt },
+      { "role": "user", "content": userPrompt }
+    ],
+    "temperature": 0.7
+  };
+
+  var options = {
+    "method": "post",
+    "contentType": "application/json",
+    "headers": { "Authorization": "Bearer " + apiKey },
+    "payload": JSON.stringify(payload),
+    "muteHttpExceptions": true
+  };
+
+  var response = UrlFetchApp.fetch("https://api.openai.com/v1/chat/completions", options);
+  var json = JSON.parse(response.getContentText());
+
+  if (response.getResponseCode() !== 200) {
+    throw new Error("OpenAI API Error: " + (json.error ? json.error.message : response.getContentText()));
+  }
+
+  try {
+    return json.choices[0].message.content.trim();
+  } catch (e2) {
+    throw new Error("Failed to parse the OpenAI response structure.");
+  }
+}
+
+// ---- Fallback message-view helpers (unchanged) ---------------------------
+function onGmailMessageOpen(e) {
+  var action = CardService.newAction().setFunctionName("getThreadText");
+  var button = CardService.newTextButton().setText("Get Thread Text").setOnClickAction(action);
+  var section = CardService.newCardSection().addWidget(button);
+
+  return CardService.newCardBuilder()
+      .setHeader(CardService.newCardHeader().setTitle("Thread Tester"))
+      .addSection(section)
+      .build();
+}
+
+function getThreadText(e) {
+  GmailApp.setCurrentMessageAccessToken(e.gmail.accessToken);
+  var messageId = e.gmail.messageId;
+  var message = GmailApp.getMessageById(messageId);
+  var thread = message.getThread();
+  var messages = thread.getMessages();
+
+  var text = messages.map(m => m.getPlainBody()).join("\n\n-----------------\n\n");
+
+  var card = CardService.newCardBuilder()
+      .setHeader(CardService.newCardHeader().setTitle("Thread Text"))
+      .addSection(CardService.newCardSection().addWidget(CardService.newTextParagraph().setText(text.substring(0, 5000))))
+      .build();
+
+  return CardService.newActionResponseBuilder()
+      .setNavigation(CardService.newNavigation().pushCard(card))
+      .build();
+}

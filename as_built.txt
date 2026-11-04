@@ -6,7 +6,32 @@ Last updated: 2026-11-04
 PURPOSE
 - Cache James Castrission's recent Gmail sample emails (SENT/DRAFT) in Supabase,
   to feed an email-drafter AI that mimics his tone/style. Emails are pulled and
-  cached by an n8n workflow.
+  cached by an n8n workflow. A Gmail add-on (Apps Script) then reads those cached
+  samples live and drafts replies in James's voice from inside the compose box.
+
+APPS SCRIPT — MAG Gmail Assistant (Gmail add-on)
+- Source copies kept in this repo (the LIVE code lives in the Apps Script project,
+  not here — these .txt files are copies to paste in):
+    * "MAG Gmail Assistant - code gs file.txt"      — the add-on code (code.gs).
+    * "MAG Gmail Assistant - appscript json file.txt" — the manifest (appsscript.json).
+- Flow: compose trigger -> onGmailComposeOpen builds an instructions card ->
+  handleAiDraftGeneration gathers thread context (GmailApp.search, last 4 msgs) +
+  pulls style samples from the DB -> callOpenAI (gpt-4o, Chat Completions) ->
+  inserts the draft into the compose window.
+- Style samples: getStyleSamplesFromDB() calls Supabase PostgREST
+  (GET /rest/v1/james_email_samples, order received_at desc, limit 40), prefers
+  SENT over DRAFT, strips the signature block, feeds up to 24 snippet exemplars.
+  NOTE: the DB has no email bodies (payload is {"mimeType":...}), so snippets
+  (~200 chars) are the only style signal available.
+- Secrets/config:
+    * OPENAI_API_KEY — in Apps Script SCRIPT PROPERTIES (not hardcoded). Required.
+    * SUPABASE_URL + SUPABASE_ANON_KEY (publishable, read-only) — in-code constants
+      (safe; the publishable key only works via the anon SELECT policy below).
+- Manifest notes: urlFetchWhitelist MUST list both outbound hosts
+  (https://aivitcomiywiysrfwqxt.supabase.co/ and https://api.openai.com/), else
+  UrlFetchApp is blocked ("URL has not been whitelisted"). Needs scopes
+  script.external_request + gmail.modify. documents.readonly is now unused (the
+  old Google Doc sample source was removed) and may be dropped.
 
 DATA STORES
 - Supabase table: public.james_email_samples
@@ -31,14 +56,21 @@ DATA STORES
       received_at timestamptz    (GENERATED from internalDate; not in JSON)
       created_at timestamptz     (default now(); not in JSON)
   - Indexes: received_at desc; threadId; GIN on labels.
-  - RLS: ENABLED, no policies. service_role key bypasses RLS (n8n uses it). An
-    anon/publishable-key reader would get nothing until a read policy is added.
+  - RLS: ENABLED. n8n writes with the service_role key (bypasses RLS).
+    MAGTestProject ALSO has policy "anon_read_james_email_samples" (SELECT only,
+    TO anon, USING true) so the Gmail add-on can read samples with the publishable
+    key. This policy is on MAGTestProject ONLY — n8n-production was left closed.
 
 EXTERNAL INTEGRATIONS
-- Gmail (OAuth2) — source of the sample emails. Accessed via n8n Gmail node.
-  Credential stored in n8n (credential ref only; no secret in this repo).
-- Supabase (REST / PostgREST) — written by n8n Supabase node. Credential stored
-  in n8n (service_role). No secret value stored in this repo.
+- Gmail (OAuth2) — source of the sample emails (via n8n Gmail node) AND the host
+  of the Apps Script add-on. n8n credential ref only; add-on auth via Google
+  OAuth scopes in appsscript.json. No secret in this repo.
+- Supabase (REST / PostgREST) — WRITTEN by n8n Supabase node (service_role, stored
+  in n8n). READ by the Gmail add-on (publishable/anon key, in-code; read-only via
+  the anon SELECT policy). No service_role secret stored in this repo.
+- OpenAI (https://api.openai.com, Chat Completions, model gpt-4o) — called by the
+  Gmail add-on to draft emails. Key in Apps Script Script Properties
+  (OPENAI_API_KEY); full key file OPENAI_API_KEY.txt is gitignored.
 
 AUTOMATIONS / ROUTINES
 - n8n workflow "Gmail Email Samples Caching" (id BwiEzt96sxDtD3wz), currently

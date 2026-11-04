@@ -1,0 +1,167 @@
+================================================================================
+CHAT HISTORY EXPORT — 2026-11-04
+Session: Rework the MAG Gmail Assistant add-on (Apps Script) to draft emails that
+         mimic James Castrission — switch Gemini -> OpenAI, source style samples
+         live from the james_email_samples Supabase table, add a read-only RLS
+         policy, then troubleshoot install / manifest whitelist errors.
+================================================================================
+
+NOTE ON REDACTIONS: This session exposed two live credential values, redacted
+below. (1) A hardcoded Google Gemini API key sat in the original code.gs that was
+read this session — it has been REMOVED from the rewritten code.gs and is shown
+here only as [REDACTED_GEMINI_API_KEY]. (2) The task prompt file contained a
+partial OpenAI key fragment — shown as [REDACTED_OPENAI_KEY_FRAGMENT]; the full
+OpenAI key file (OPENAI_API_KEY.txt) was deliberately never opened. The Supabase
+publishable/anon key is intentionally non-secret (read-only client key) and is
+referenced normally.
+
+--------------------------------------------------------------------------------
+USER:
+Pointed at prompts/041126_modify_plugin_code.txt. That file referenced the
+code_gs file (MAG Gmail Assistant - code gs file.txt), a partial OpenAI key
+[REDACTED_OPENAI_KEY_FRAGMENT], and OPENAI_API_KEY.txt.
+main_task: modify code_gs so it drafts better emails mimicking James Castrission,
+with each draft execution referring to james_email_samples from the DB.
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+Read code.gs (a Google Apps Script Gmail add-on). Current flow: compose-trigger
+card -> user types instructions -> handleAiDraftGeneration gathers thread context
++ reads style samples from a Google Doc (SAMPLE_DOC_ID) -> callGeminiAI (hardcoded
+[REDACTED_GEMINI_API_KEY], model "gemini-3.5-flash" which is not a real model) ->
+inserts HTML into the draft.
+
+Read as_built.txt, CLAUDE.md, json_structure.txt, and queried the Supabase table
+(MAGTestProject, aivitcomiywiysrfwqxt). Key finding: the `payload` jsonb only
+holds {"mimeType": ...} — NO body text. The only usable style text in the DB is
+the `snippet` column (~first 200 chars of each email) plus Subject/From/To/labels.
+So "refer to samples from DB" realistically means pulling recent SENT snippets.
+Also noted RLS is ON with no policies (needs service_role OR a new SELECT policy),
+and that the prompt handed over an OpenAI key while the code used Gemini.
+
+Asked three clarifying questions. User chose: (1) AI provider = Switch to OpenAI;
+(2) Samples source = DB only (snippets), drop the Google Doc; (3) Supabase auth =
+add a read-only SELECT RLS policy + use the publishable key.
+
+--------------------------------------------------------------------------------
+ASSISTANT (implementation):
+- Supabase: applied migration allow_anon_read_james_email_samples to
+  MAGTestProject — created policy "anon_read_james_email_samples" (SELECT only,
+  TO anon, USING true) on public.james_email_samples. RLS stays ON. Deliberately
+  did NOT apply it to n8n-production (would expose James's snippets via that
+  project's anon key; add-on only reads MAGTestProject). Fetched project URL
+  (https://aivitcomiywiysrfwqxt.supabase.co) and the publishable key
+  (sb_publishable_..., non-secret). Verified over REST (curl GET) that the
+  publishable key can read Subject/snippet/labels/received_at.
+
+- Rewrote code.gs:
+  * Removed Gemini (key + invalid model) and the Google Doc dependency.
+  * getStyleSamplesFromDB(): UrlFetchApp GET to PostgREST
+    (/rest/v1/james_email_samples?select=Subject,snippet,labels,received_at
+    &order=received_at.desc.nullslast&limit=40), prefers SENT over DRAFT, strips
+    the repeated signature block from each snippet (cleanSnippet), feeds up to 24
+    exemplars. Non-fatal fallback text if the fetch fails.
+  * callOpenAI(): Chat Completions, model gpt-4o, OPENAI_API_KEY read from
+    Script Properties (NOT hardcoded). Stronger mimicry system prompt grounded in
+    the real snippet exemplars; keeps the "Cheers / James" sign-off.
+  * Supabase URL + publishable key kept as in-code constants (safe, read-only).
+  * Kept onGmailComposeOpen / handleAiDraftGeneration flow and the message-view
+    fallback helpers.
+- Updated .gitignore to add OPENAI_API_KEY.txt and *API_KEY*.txt.
+- Flagged: a real OpenAI key fragment sits in prompts/041126_modify_plugin_code.txt
+  and the full key in OPENAI_API_KEY.txt — recommended rotating the key since it
+  was shared in plaintext. Noted the snippet-only ceiling (no full bodies in DB).
+
+--------------------------------------------------------------------------------
+USER:
+/q — "this is a gmail add on app. do i need to reinstall this?"
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+No reinstall needed for an Apps Script add-on. Explained: paste the new code.gs
+into the Apps Script editor and Save (the repo .txt is just a copy); add the
+OPENAI_API_KEY Script Property; reload Gmail. No re-auth expected because scopes
+didn't grow (dropped DocumentApp, UrlFetchApp external-request scope already
+granted). Caveat: if installed from a pinned version deployment rather than a
+test/HEAD install, bump the deployment version. Couldn't verify exact scopes — no
+appsscript.json in the repo at that point.
+
+--------------------------------------------------------------------------------
+USER:
+/q — "how do i uninstall this again?"
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+Gave two paths: Gmail Settings -> Add-ons -> Manage -> Google Workspace
+Marketplace "Manage apps" -> Uninstall; or Apps Script editor -> Deploy -> Test
+deployments -> Uninstall. Noted uninstalling doesn't delete the project, code,
+Script Property, Supabase table, or RLS policy.
+
+--------------------------------------------------------------------------------
+USER:
+/q — "how do i reinstall it again?"
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+Apps Script editor -> ensure new code saved -> Deploy -> Test deployments ->
+Install -> approve authorization -> reload Gmail; open compose to see the MAG
+Assistant card. Reminded that the OPENAI_API_KEY Script Property must be set or
+the first generate throws the "OPENAI_API_KEY is missing" error.
+
+--------------------------------------------------------------------------------
+USER:
+Reported runtime error: UrlFetchApp request to the Supabase REST URL "failed
+because the URL has not been whitelisted in the script manifest."
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+Diagnosed: the manifest has a urlFetchWhitelist block (restricts outbound URLs to
+only listed ones), still pointing at the old Gemini endpoint. Fix: edit
+appsscript.json (Project Settings -> show manifest) to whitelist the two domains
+now called:
+  "urlFetchWhitelist": [
+    "https://aivitcomiywiysrfwqxt.supabase.co/",
+    "https://api.openai.com/"
+  ]
+Rules: https + trailing slash + literal prefix match. Alternative: delete the
+whole urlFetchWhitelist field to allow any HTTPS. Noted the fix is in the manifest,
+not code.gs.
+
+--------------------------------------------------------------------------------
+USER:
+Shared a new file "MAG Gmail Assistant - appscript json file.txt" — "this right?"
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+Read it. Confirmed correct: urlFetchWhitelist has both domains (https, trailing
+slash); script.external_request + gmail.modify scopes present; composeTrigger
+runs onGmailComposeOpen. One optional cleanup: documents.readonly scope is now
+unused (old Google Doc dependency) and can be removed. Told them to save, expect
+a re-auth prompt, reload Gmail.
+
+--------------------------------------------------------------------------------
+USER:
+"how do i re-auth? it did not prompt to reauth"
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+Clarified re-auth only fires on NEW scopes; the whitelist change isn't a scope, so
+no prompt is expected/needed. What's needed is for the add-on to pick up the new
+manifest: save appsscript.json, Deploy -> Test deployments -> Uninstall then
+Install, hard-refresh Gmail. To force consent anyway: Run any function in the
+editor, or revoke access at myaccount.google.com/permissions and reopen Gmail. If
+the error persists, suspect a stale/pinned version deployment.
+
+--------------------------------------------------------------------------------
+USER:
+"all good and working now." Ran /dcp.
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+Executed the dcp steps: wrote this chat-history file, updated as_built.txt and
+CLAUDE.md to reflect the new add-on component, and updated .gitignore. No git
+commands run.
+
+================================================================================
+END OF EXPORT
+================================================================================
