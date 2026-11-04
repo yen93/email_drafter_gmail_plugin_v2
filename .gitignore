@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Environment / secrets
+.env
+*.env
+.env.*
+secrets/
+
+# Credentials & keys
+*.pem
+*.key
+*.p12
+*.pfx
+*service-account*.json
+*-credentials.json
+*creds*.txt
+*token*.txt
+*secret*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

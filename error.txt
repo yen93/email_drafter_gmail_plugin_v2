@@ -1,0 +1,32 @@
+{
+  "errorMessage": "Bad request - please check your parameters: All object keys must match",
+  "errorDescription": "All object keys must match",
+  "errorDetails": {
+    "rawErrorMessage": [
+      "400 - {\"code\":\"PGRST102\",\"details\":null,\"hint\":null,\"message\":\"All object keys must match\"}"
+    ],
+    "httpCode": "400"
+  },
+  "n8nDetails": {
+    "nodeName": "Create a row",
+    "nodeType": "n8n-nodes-base.supabase",
+    "nodeVersion": 1,
+    "resource": "row",
+    "operation": "create",
+    "time": "11/4/2026, 8:42:15 AM",
+    "n8nVersion": "2.22.6 (Self Hosted)",
+    "binaryDataMode": "filesystem",
+    "stackTrace": [
+      "NodeApiError: Bad request - please check your parameters: All object keys must match",
+      "    at ExecuteContext.requestWithAuthentication (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_ab127feadfe58018bfc172b46ac66b6e/node_modules/n8n-core/src/execution-engine/node-execution-context/utils/request-helper-functions.ts:1368:10)",
+      "    at processTicksAndRejections (node:internal/process/task_queues:104:5)",
+      "    at ExecuteContext.requestWithAuthentication (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_ab127feadfe58018bfc172b46ac66b6e/node_modules/n8n-core/src/execution-engine/node-execution-context/utils/request-helper-functions.ts:1711:11)",
+      "    at ExecuteContext.supabaseApiRequest (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-nodes-base@file+packages+nodes-base_@aws-sdk+credential-providers@3.808.0_asn1.js@5_8da18263ca0574b0db58d4fefd8173ce/node_modules/n8n-nodes-base/nodes/Supabase/GenericFunctions.ts:80:10)",
+      "    at ExecuteContext.execute (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-nodes-base@file+packages+nodes-base_@aws-sdk+credential-providers@3.808.0_asn1.js@5_8da18263ca0574b0db58d4fefd8173ce/node_modules/n8n-nodes-base/nodes/Supabase/Supabase.node.ts:221:41)",
+      "    at WorkflowExecute.executeNode (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_ab127feadfe58018bfc172b46ac66b6e/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1053:9)",
+      "    at WorkflowExecute.runNode (/usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_ab127feadfe58018bfc172b46ac66b6e/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1327:11)",
+      "    at /usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_ab127feadfe58018bfc172b46ac66b6e/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:1778:27",
+      "    at /usr/local/lib/node_modules/n8n/node_modules/.pnpm/n8n-core@file+packages+core_@opentelemetry+api@1.9.0_@opentelemetry+exporter-trace-otlp_ab127feadfe58018bfc172b46ac66b6e/node_modules/n8n-core/src/execution-engine/workflow-execute.ts:2426:11"
+    ]
+  }
+}

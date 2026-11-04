@@ -1,0 +1,441 @@
+[
+  {
+    "id": "1a1a3e3d93008197",
+    "threadId": "1a1a3aa2fee6fd34",
+    "snippet": "Hi Albert, Thanks for the clarification. I'll take a look at the LastPass settings on my end. Cheers James James Castrission International Keynote Speaker, MyAdventure Group 0402904334 |",
+    "payload": {
+      "mimeType": "multipart/alternative"
+    },
+    "sizeEstimate": 15309,
+    "historyId": "43252959",
+    "internalDate": "1793750981000",
+    "labels": [
+      {
+        "id": "DRAFT",
+        "name": "DRAFT"
+      },
+      {
+        "id": "Label_8466084894464494175",
+        "name": "@ James To Action"
+      }
+    ],
+    "Subject": "Re: Passkeys in LastPass",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Albert from itGenius <help@itgenius.com>"
+  },
+  {
+    "id": "1a1a3cfec7d73518",
+    "threadId": "19e2951d5f7d6a1b",
+    "snippet": "Hi Frances, Great chatting over text over the last few days, and it's fantastic to hear that things are looking positive in terms of CBA potentially supporting your participation in Executive X. As",
+    "payload": {
+      "mimeType": "multipart/alternative"
+    },
+    "sizeEstimate": 91248,
+    "historyId": "43250755",
+    "internalDate": "1793749672000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      }
+    ],
+    "Subject": "Re: Executive X – An Invitation Just for You ⛰️",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Frances McGregor <francesmcgregor@hotmail.com>",
+    "Cc": "Frances McGregor <frances.mcgregor@cba.com.au>"
+  },
+  {
+    "id": "1a1a3ad0e9097306",
+    "threadId": "1a1a3aa2fee6fd34",
+    "snippet": "Hi IT Genius Team, We have LastPass included as part of our subscription with you, but I'm currently unable to save passkeys in LastPass. Is this a feature that needs to be activated or enabled at",
+    "payload": {
+      "mimeType": "multipart/alternative"
+    },
+    "sizeEstimate": 6008,
+    "historyId": "43252959",
+    "internalDate": "1793747390000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      },
+      {
+        "id": "Label_8466084894464494175",
+        "name": "@ James To Action"
+      }
+    ],
+    "Subject": "Passkeys in LastPass",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "help@itgenius.com"
+  },
+  {
+    "id": "1a1a386188d72bdb",
+    "threadId": "1a19a531f80f468f",
+    "snippet": "Hi Simon Great to hear from you. Good news - I am currently free Feb 13 (I'll be in Adelaide the day prior presenting)! Look forward to catching up tomorrow and hearing more about the event you",
+    "payload": {
+      "mimeType": "multipart/related"
+    },
+    "sizeEstimate": 270265,
+    "historyId": "43247521",
+    "internalDate": "1793744836000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      }
+    ],
+    "Subject": "Re: [EXTERNAL] Re: Introduction",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Simon Muscat <Simon.Muscat@i-med.com.au>",
+    "Cc": "Joanna Targett <Joanna.Targett@i-med.com.au>, \"marielle@myadventuregroup.com.au\" <marielle@myadventuregroup.com.au>"
+  },
+  {
+    "id": "1a1a0171e52ac834",
+    "threadId": "1a0c28e0f1d02781",
+    "snippet": "Hi Tracey, Apologies for the delayed response, and thank you for getting back to me and for pointing me in the right direction. I'll reach out to Lidia and Vanessa to explore potential",
+    "payload": {
+      "mimeType": "multipart/related"
+    },
+    "sizeEstimate": 25880,
+    "historyId": "43242916",
+    "internalDate": "1793687231000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      }
+    ],
+    "Subject": "Re: Awesome BSR Group and BETTA Home Living National Conference - What's Next for 2026?",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Tracey Kruske <tracey.kruske@bsrgroup.com.au>"
+  },
+  {
+    "id": "1a1a015a995f0325",
+    "threadId": "1a0e5b0a37a6a27c",
+    "snippet": "Hi Paul, Hope you are well. Just following up on my note about starting at 2:30pm on 4 December. Would that be possible? If that's tricky, could you let me know the latest time that would work?",
+    "payload": {
+      "mimeType": "multipart/related"
+    },
+    "sizeEstimate": 141085,
+    "historyId": "43239897",
+    "internalDate": "1793687134000",
+    "labels": [
+      {
+        "id": "DRAFT",
+        "name": "DRAFT"
+      }
+    ],
+    "Subject": "Re: Vistage Speaker Confirmation * Date Change * - SB223 Brisbane QLD | 4/12/2026 Afternoon Session",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Paul Ronis <paul.r.ronis@vistage.com.au>",
+    "Cc": "Marielle Buscato <marielle@myadventuregroup.com.au>, Speakers <speakers@vistage.com.au>"
+  },
+  {
+    "id": "1a19ffd705adec6d",
+    "threadId": "19a0ff9f7d4736d0",
+    "snippet": "Hi Monique, Great chatting this morning. I'm really excited about the opportunity to work with your team on 28 January. As discussed, I've put together two options for your group of 10, both",
+    "payload": {
+      "mimeType": "multipart/alternative"
+    },
+    "sizeEstimate": 212951,
+    "historyId": "43240555",
+    "internalDate": "1793685547000",
+    "labels": [
+      {
+        "id": "DRAFT",
+        "name": "DRAFT"
+      }
+    ],
+    "Subject": "Re: Team Offsite Proposal for Intrim Group ⛰️",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Monique Wilson <Monique.Wilson@intrimgroup.com.au>"
+  },
+  {
+    "id": "1a19fdf80b9e3362",
+    "threadId": "1a0c28dee90048c3",
+    "snippet": "Hi Amie, Thank you for getting back to me and for passing my details to one of your team members - really appreciate it. Would you mind sharing their email address? I'd love to introduce myself",
+    "payload": {
+      "mimeType": "multipart/alternative"
+    },
+    "sizeEstimate": 25051,
+    "historyId": "43242915",
+    "internalDate": "1793683586000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      }
+    ],
+    "Subject": "Re: Awesome Centre of Risk Leadership event - What's Next for 2026?",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "\"Calvert, Amie\" <Amie.Calvert@marsh.com>"
+  },
+  {
+    "id": "1a19f7e3bd52fd12",
+    "threadId": "1a0c28dff8f06b09",
+    "snippet": "Hi Victoria, Thanks for getting back to me. I completely understand. I've attached a copy of my Inspire Magazine so you can get a better feel for my presentations and the different ways I could",
+    "payload": {
+      "mimeType": "multipart/mixed"
+    },
+    "sizeEstimate": 10124826,
+    "historyId": "43236351",
+    "internalDate": "1793677211000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      }
+    ],
+    "Subject": "Re: Awesome UniSuper Advice Conference - What's Next for 2026?",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Victoria Jones <Victoria.Jones@unisuper.com.au>"
+  },
+  {
+    "id": "1a19f69c1a32433d",
+    "threadId": "1a10e9cdfc62d09a",
+    "snippet": "Hi Abbie, Thank you for getting back to me and for sharing Maz's details - really appreciate it. Quick question – do you have other events throughout the year where you look to bring in external",
+    "payload": {
+      "mimeType": "multipart/related"
+    },
+    "sizeEstimate": 442269,
+    "historyId": "43235896",
+    "internalDate": "1793675869000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      }
+    ],
+    "Subject": "Re: Awesome Zero Carbon Commuting Conference 2026 (ZC3) - What's Next for 2026?",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Abbie Wagstaff <abbie@mobilityways.com>"
+  },
+  {
+    "id": "1a19f376df6201c8",
+    "threadId": "1a15b7029d894e17",
+    "snippet": "Hi Andrew, Thank you for getting back to me. That makes sense. I'd be keen to reconnect towards the end of 2027 when you start looking at speakers for the 2028 event. In the meantime, I've",
+    "payload": {
+      "mimeType": "multipart/mixed"
+    },
+    "sizeEstimate": 10195002,
+    "historyId": "43234037",
+    "internalDate": "1793672570000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      }
+    ],
+    "Subject": "Re: Awesome Australian Bookkeepers Network National Conference - What's Next for 2026?",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Andrew Bradley <andrew@austbook.net>"
+  },
+  {
+    "id": "1a19f2e6c854bf07",
+    "threadId": "1a15b7059a423c69",
+    "snippet": "Hi Julie, Thank you for getting back to me. I completely understand and appreciate you sharing my details with the broader team. I've included a little more about my presentations and how I bring",
+    "payload": {
+      "mimeType": "multipart/alternative"
+    },
+    "sizeEstimate": 21193,
+    "historyId": "43242926",
+    "internalDate": "1793671981000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      }
+    ],
+    "Subject": "Re: Awesome Monash Business School’s Corporate Education leadership program - What's Next for 2026?",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Julie Egonidis <julie.egonidis@monash.edu>"
+  },
+  {
+    "id": "1a19f17f0a819d6a",
+    "threadId": "19fb165c52a83cf4",
+    "snippet": "Hi Tanya, Thanks for sending that through. Look forward to catching up Friday! Cheers James James Castrission International Keynote Speaker, MyAdventure Group 0402904334 | myadventuregroup.com.au james",
+    "payload": {
+      "mimeType": "multipart/related"
+    },
+    "sizeEstimate": 386465,
+    "historyId": "43232118",
+    "internalDate": "1793670507000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      }
+    ],
+    "Subject": "Re: [EXT] Re: CAS x GPC Asia Pacific",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Tanya Law <TLaw@gpcasiapac.com>"
+  },
+  {
+    "id": "1a19eefc9bfa502c",
+    "threadId": "19fb165c52a83cf4",
+    "snippet": "Hi Tanya, Fantastic! Are you available for a catch up sometime this week? Thanks and speak soon! Cheers James James Castrission International Keynote Speaker, MyAdventure Group 0402904334 |",
+    "payload": {
+      "mimeType": "multipart/related"
+    },
+    "sizeEstimate": 1555949,
+    "historyId": "43232099",
+    "internalDate": "1793667874000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      }
+    ],
+    "Subject": "Re: [EXT] Re: CAS x GPC Asia Pacific",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Tanya Law <TLaw@gpcasiapac.com>"
+  },
+  {
+    "id": "1a19eeb7e5d843cf",
+    "threadId": "1a0ea7f5fd283af8",
+    "snippet": "Hi Jason, Thanks for the update. Either time works for me so I'll also keep an eye out for the invite. Thanks again Jason and speak soon. Cheers James James Castrission International Keynote",
+    "payload": {
+      "mimeType": "multipart/related"
+    },
+    "sizeEstimate": 35932,
+    "historyId": "43230075",
+    "internalDate": "1793667596000",
+    "labels": [
+      {
+        "id": "DRAFT",
+        "name": "DRAFT"
+      }
+    ],
+    "Subject": "Re: Booking Confirmation - Thursday 19th November / ATA Finalists Dinner",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Jason Kidger <jason@platinumspeakers.com.au>"
+  },
+  {
+    "id": "1a19e964b9cd169b",
+    "threadId": "1a19e964b9cd169b",
+    "snippet": "James Castrission International Keynote Speaker, MyAdventure Group 0402904334 | myadventuregroup.com.au james@myadventuregroup.com.au 49 Miowera Rd, North Turramurra NSW Meeting Button App",
+    "payload": {
+      "mimeType": "multipart/alternative"
+    },
+    "sizeEstimate": 5183,
+    "historyId": "43227584",
+    "internalDate": "1793662009000",
+    "labels": [
+      {
+        "id": "DRAFT",
+        "name": "DRAFT"
+      }
+    ],
+    "Subject": "",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Budgy Smuggler <budgy@budgysmuggler.com.au>"
+  },
+  {
+    "id": "1a19e8194bd5a66c",
+    "threadId": "1a19bc1835fb92ec",
+    "snippet": "HI Julienne Thank you for the above. Unfortunately, I cant access the link above for the performance review? Please can you resend? Cheers James Castrission International Keynote Speaker, MyAdventure",
+    "payload": {
+      "mimeType": "multipart/alternative"
+    },
+    "sizeEstimate": 18733,
+    "historyId": "43242927",
+    "internalDate": "1793660654000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      },
+      {
+        "id": "Label_8466084894464494175",
+        "name": "@ James To Action"
+      }
+    ],
+    "Subject": "Re: AI & AUTOMATION : Daily Report - 02 NOVERMBER 2026",
+    "From": "James Castrission <james@myadventuregroup.com.au>",
+    "To": "Julienne Mae Anito <julienne@myadventuregroup.com.au>"
+  },
+  {
+    "id": "1a19e5f9d31b6bb8",
+    "threadId": "1a11f3fcc5d9550c",
+    "snippet": "Hi James, Hope you are well. I know you're probably finalising details for your next event, so I just wanted to check in before you lock everything in. I've also put together another quick",
+    "payload": {
+      "mimeType": "text/html"
+    },
+    "sizeEstimate": 12937,
+    "historyId": "43246652",
+    "internalDate": "1793658428000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      },
+      {
+        "id": "UNREAD",
+        "name": "UNREAD"
+      },
+      {
+        "id": "Label_3356284124157141213",
+        "name": "FOLLOW UP SEQUENCE/CLOSED"
+      }
+    ],
+    "To": "james.mcdonald@vivaenergy.com.au, James Castrission <james@myadventuregroup.com.au>",
+    "Subject": "Ideas for your 2026 events",
+    "From": "James Castrission <james@myadventuregroup.com.au>"
+  },
+  {
+    "id": "1a19e5f8e84ce3b0",
+    "threadId": "1a11f3fdcc013332",
+    "snippet": "Hi Michelle, Hope you are well. I know you're probably finalising details for your next event, so I just wanted to check in before you lock everything in. I've also put together another quick",
+    "payload": {
+      "mimeType": "text/html"
+    },
+    "sizeEstimate": 12939,
+    "historyId": "43246659",
+    "internalDate": "1793658425000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      },
+      {
+        "id": "UNREAD",
+        "name": "UNREAD"
+      },
+      {
+        "id": "Label_3356284124157141213",
+        "name": "FOLLOW UP SEQUENCE/CLOSED"
+      }
+    ],
+    "To": "michelle.sandford@microsoft.com, James Castrission <james@myadventuregroup.com.au>",
+    "Subject": "Ideas for your 2026 events",
+    "From": "James Castrission <james@myadventuregroup.com.au>"
+  },
+  {
+    "id": "1a19e5f7e8f9c27f",
+    "threadId": "1a11f400ac3ae4ac",
+    "snippet": "Hi Renee, Hope you are well. I know you're probably finalising details for your next event, so I just wanted to check in before you lock everything in. I've also put together another quick",
+    "payload": {
+      "mimeType": "text/html"
+    },
+    "sizeEstimate": 12935,
+    "historyId": "43246672",
+    "internalDate": "1793658420000",
+    "labels": [
+      {
+        "id": "SENT",
+        "name": "SENT"
+      },
+      {
+        "id": "UNREAD",
+        "name": "UNREAD"
+      },
+      {
+        "id": "Label_3356284124157141213",
+        "name": "FOLLOW UP SEQUENCE/CLOSED"
+      }
+    ],
+    "To": "renee.reilly@vivaenergy.com.au, James Castrission <james@myadventuregroup.com.au>",
+    "Subject": "Ideas for your 2026 events",
+    "From": "James Castrission <james@myadventuregroup.com.au>"
+  }
+]

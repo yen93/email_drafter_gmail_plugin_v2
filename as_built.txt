@@ -1,0 +1,65 @@
+================================================================================
+AS-BUILT — email_drafter_gmail_plugin_v2
+Last updated: 2026-11-04
+================================================================================
+
+PURPOSE
+- Cache James Castrission's recent Gmail sample emails (SENT/DRAFT) in Supabase,
+  to feed an email-drafter AI that mimics his tone/style. Emails are pulled and
+  cached by an n8n workflow.
+
+DATA STORES
+- Supabase table: public.james_email_samples
+  - Exists in TWO projects (identical schema):
+      * MAGTestProject   — ref aivitcomiywiysrfwqxt (ap-northeast-1) — TARGET
+      * n8n-production    — ref uwsncuowtzydylfabikj (ap-southeast-2) — also kept
+        (n8n-production also hosts the n8n application's own DB.)
+  - Columns are QUOTED to preserve exact Gmail-JSON key case so n8n "Auto-map
+    input data to columns" matches 1:1:
+      "id" text PRIMARY KEY (Gmail message id; natural key for dedup/upsert)
+      "threadId" text            (indexed)
+      "snippet" text
+      "payload" jsonb            (e.g. {"mimeType": "..."})
+      "sizeEstimate" bigint
+      "historyId" text
+      "internalDate" text        (epoch-millis string, kept verbatim)
+      "labels" jsonb             (array of {id,name}; GIN-indexed)
+      "Subject" text
+      "From" text
+      "To" text
+      "Cc" text                  (nullable; absent on many messages)
+      received_at timestamptz    (GENERATED from internalDate; not in JSON)
+      created_at timestamptz     (default now(); not in JSON)
+  - Indexes: received_at desc; threadId; GIN on labels.
+  - RLS: ENABLED, no policies. service_role key bypasses RLS (n8n uses it). An
+    anon/publishable-key reader would get nothing until a read policy is added.
+
+EXTERNAL INTEGRATIONS
+- Gmail (OAuth2) — source of the sample emails. Accessed via n8n Gmail node.
+  Credential stored in n8n (credential ref only; no secret in this repo).
+- Supabase (REST / PostgREST) — written by n8n Supabase node. Credential stored
+  in n8n (service_role). No secret value stored in this repo.
+
+AUTOMATIONS / ROUTINES
+- n8n workflow "Gmail Email Samples Caching" (id BwiEzt96sxDtD3wz), currently
+  inactive. Schedule Trigger -> Gmail "Get many messages" (getAll, limit 20,
+  sender james@myadventuregroup.com.au) -> [Normalize keys Code node] ->
+  Supabase "Create a row" (james_email_samples, auto-map).
+  - Original export: "Gmail Email Samples Caching.json" (broken — see below).
+  - Fixed export:    "Gmail Email Samples Caching (fixed).json" (adds the
+    "Normalize keys" Code node).
+
+KNOWN ISSUES / NOTES
+- FIXED: PGRST102 "All object keys must match". The v1 Supabase auto-map node
+  bulk-inserts all items at once; PostgREST requires identical key sets, but
+  Gmail items vary (Cc present on some only). The "Normalize keys" Code node
+  forces every item to the same 12 keys (missing -> null, stray -> dropped).
+- OPEN: duplicate-key (23505) on repeated scheduled runs. The v1 Supabase node
+  does a plain INSERT, but the schedule re-pulls overlapping message ids. Needs
+  an upsert — e.g. an HTTP Request node with header
+  `Prefer: resolution=merge-duplicates`, or a dedup step. Not yet implemented.
+
+REFERENCE FILES
+- json_structure.txt — sample of the Gmail JSON array the table maps.
+- error.txt — captured n8n error that was diagnosed this session.
+================================================================================

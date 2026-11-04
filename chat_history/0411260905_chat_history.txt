@@ -1,0 +1,111 @@
+================================================================================
+CHAT HISTORY EXPORT — 2026-11-04
+Session: Create a Supabase cache table for James Castrission's Gmail sample
+         emails (n8n auto-map), then fix an n8n Supabase auto-mapping error.
+================================================================================
+
+--------------------------------------------------------------------------------
+USER:
+Asked to create a Supabase table that will auto-map a JSON output in n8n. Rows
+will be inserted via n8n. The table serves as a cache of James Castrission's
+fresh sample emails, fed to an email-drafter AI that mimics his tone/style.
+Pointed at C:\Users\Cloverly\claude_code\email_drafter_gmail_plugin_v2\
+json_structure.txt as the JSON to map.
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+Read json_structure.txt — initially empty. Listed Supabase projects and found
+two: MAGTestProject (aivitcomiywiysrfwqxt, ap-northeast-1) and n8n-production
+(uwsncuowtzydylfabikj, ap-southeast-2). Was about to ask for the JSON + target
+project.
+
+--------------------------------------------------------------------------------
+USER:
+"check again"
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+Re-read json_structure.txt — now populated with a JSON array of ~20 Gmail
+message objects (James's SENT/DRAFT emails). Identified the exact top-level keys
+and that they vary per item (notably `Cc` is only present on some; field order
+varies; `payload` is a nested object, `labels` a nested array):
+  id, threadId, snippet, payload{mimeType}, sizeEstimate, historyId,
+  internalDate (epoch-ms string), labels[{id,name}], Subject, From, To, Cc.
+
+Listed tables in n8n-production (it hosts the n8n application DB itself) — no
+collision with james_email_samples. Created the table there via apply_migration
+with columns QUOTED to preserve exact Gmail-key case (so n8n "Auto-map input
+data to columns" matches 1:1): id (text PK), threadId, snippet, payload (jsonb),
+sizeEstimate (bigint), historyId, internalDate (text), labels (jsonb), Subject,
+From, To, Cc (nullable), plus derived received_at (timestamptz GENERATED from
+internalDate) and created_at (default now()). Added indexes (received_at desc,
+threadId, GIN on labels) and enabled RLS (service_role bypasses). Verified
+columns. Explained mapping and recommended Upsert-on-id.
+
+--------------------------------------------------------------------------------
+USER:
+"table should be in https://aivitcomiywiysrfwqxt.supabase.co"
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+That's MAGTestProject. Applied the identical migration there (table created).
+Asked whether to drop the earlier duplicate in n8n-production.
+
+--------------------------------------------------------------------------------
+USER:
+Chose "Leave both".
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+Confirmed: james_email_samples now exists in both MAGTestProject (the real
+target) and n8n-production (left per user's call), both empty. Re-stated n8n
+node setup guidance (point credential at MAGTestProject, keep Auto-map,
+Upsert-on-id, don't lowercase the mixed-case columns).
+
+--------------------------------------------------------------------------------
+USER:
+Provided two files and asked to fix an auto-mapping issue:
+  error.txt — the n8n error.
+  "Gmail Email Samples Caching.json" — the n8n workflow export.
+main_task: fix auto mapping issue.
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+Read both. error.txt showed PostgREST error PGRST102 "All object keys must
+match" (HTTP 400) from the Supabase "Create a row" node (v1, autoMapInputData).
+Workflow: Schedule Trigger -> Gmail "Get many messages" (getAll, limit 20,
+sender james@myadventuregroup.com.au) -> Supabase "Create a row"
+(tableId james_email_samples, dataToSend autoMapInputData).
+
+Diagnosed root cause: the v1 Supabase node with auto-map sends ALL items as a
+single PostgREST BULK insert, which requires every object to have an identical
+key set. The Gmail items differ (some have Cc, some don't), so the batch is
+rejected. Not a table/column problem.
+
+Fix: inserted a Code node ("Normalize keys") between Gmail and Supabase that
+maps every item to the same fixed 12 keys, filling missing ones (e.g. Cc) with
+null and dropping any stray keys without a column. Wrote the corrected workflow
+to "Gmail Email Samples Caching (fixed).json" (Schedule -> Get many messages ->
+Normalize keys -> Create a row). Gave both import and manual-add instructions
+plus the Code snippet.
+
+Also flagged a SEPARATE, not-yet-fixed issue: the workflow is scheduled and
+pulls the latest 20 each run, so overlapping ids will cause a duplicate-key
+(23505) failure on the next run because the v1 node does a plain insert (no
+upsert). Recommended either an HTTP Request node with
+`Prefer: resolution=merge-duplicates` (PostgREST upsert) or a dedup step, and
+offered to wire up the upsert version. (Left pending the user's choice.)
+
+--------------------------------------------------------------------------------
+USER:
+Ran /dcp (document — save chat history, as_built.txt, CLAUDE.md, .gitignore;
+no git commands).
+
+--------------------------------------------------------------------------------
+ASSISTANT:
+Executed the dcp steps: wrote this chat-history file, created as_built.txt,
+CLAUDE.md, and .gitignore for the project. No git commands run.
+
+================================================================================
+END OF EXPORT
+================================================================================
