@@ -1,6 +1,6 @@
 ================================================================================
 AS-BUILT — email_drafter_gmail_plugin_v2
-Last updated: 2026-11-04
+Last updated: 2026-11-04 (compose card now pre-fills a default instruction)
 ================================================================================
 
 PURPOSE
@@ -18,6 +18,11 @@ APPS SCRIPT — MAG Gmail Assistant (Gmail add-on)
   handleAiDraftGeneration gathers thread context (GmailApp.search, last 4 msgs) +
   pulls style samples from the DB -> callOpenAI (gpt-4o, Chat Completions) ->
   inserts the draft into the compose window.
+- The instructions TextInput pre-fills a default value
+  ("Draft a short email in James's style.", code.gs line 34) so users can click
+  Generate with no typing. Chosen to work on BOTH paths — a reply (model has the
+  thread) and a brand-new email/intro (no thread; model writes fresh) — rather
+  than a reply-only wording that would misfire on intros. Still fully editable.
 - Style samples: getStyleSamplesFromDB() calls Supabase PostgREST
   (GET /rest/v1/james_email_samples, order received_at desc, limit 40), prefers
   SENT over DRAFT, strips the signature block, feeds up to 24 snippet exemplars.

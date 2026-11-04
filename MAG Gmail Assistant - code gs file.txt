@@ -31,6 +31,7 @@ function onGmailComposeOpen(e) {
   var textInput = CardService.newTextInput()
       .setFieldName("ai_instructions")
       .setTitle("What should this email say?")
+      .setValue("Draft a short email in James's style.")
       .setHint("e.g., Politely decline the invitation but ask to reschedule next month.")
       .setMultiline(true);
 
